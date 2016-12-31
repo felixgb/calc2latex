@@ -14,6 +14,10 @@ go inp = do
     let (ty, tex) = process inp
     putStrLn $ docString tex
 
+calc2latex :: String -> String
+calc2latex inp = docString out
+    where out = snd $ process inp
+
 process :: String -> (Type, [Texlevel])
 process inp = case runExcept (parseExpr inp >>= inferExpr) of
     Left err -> error err
@@ -26,6 +30,12 @@ docString tex =
                      , "border={20px 20px 20px 20px}"
                      , "]{standalone}"
                      , "\\usepackage{ebproof}"
+                     , "\\usepackage[showframe]{geometry}"
+                     , "\\geometry{"
+                     , "paperwidth=1000px,"
+                     , "paperheight=1000px,"
+                     , "margin=50px"
+                     , "}"
                      , "\\usepackage{amssymb} % To provide the \\varnothing symbol"
                      , "\\newcommand{\\nothing}{\\varnothing}"
                      , "\\newcommand{\\Var}[2]{\\Infer0[(Var)]{\\Gamma , #1 : #2 \\vdash #1 : #2}} % var varty"
