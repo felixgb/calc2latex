@@ -1,0 +1,21 @@
+\documentclass[
+preview,
+border={20px 20px 20px 20px}
+]{standalone}
+\usepackage{ebproof}
+\usepackage{amssymb} % To provide the \varnothing symbol
+\newcommand{\nothing}{\varnothing}
+\newcommand{\Var}[2]{\Infer0[(Var)]{\Gamma , #1 : #2 \vdash #1 : #2}} % var varty
+\newcommand{\Abs}[4]{\Infer1[(Abs)]{\Gamma \vdash \lambda #1 . #2 : #3 \to #4}} % var bod varty bodyty
+\newcommand{\App}[3]{\Infer2[(App)]{\Gamma \vdash #1 #2 : #3}} % M N A B
+\begin{document}
+\begin{prooftree}
+\Var{x}{(B -> (B -> D))}
+\Var{y}{B}
+\App{x}{y}{(B -> D)}
+\Var{y}{B}
+\App{xy}{y}{D}
+\Abs{y}{xyy}{B}{D}
+\Abs{x}{(\lambda y . xyy)}{(B -> (B -> D))}{(B -> D)}
+\end{prooftree}
+\end{document}
