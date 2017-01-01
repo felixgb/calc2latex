@@ -7,6 +7,9 @@ module.exports = {
   // https://github.com/feross/standard/blob/master/RULES.md#javascript-standard-style
   extends: 'standard',
   // required to lint *.vue files
+  env: {
+    'browser': true
+  },
   plugins: [
     'html'
   ],
@@ -18,5 +21,8 @@ module.exports = {
     'generator-star-spacing': 0,
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
+  },
+  'globals': {
+    createImageBitmap: false
   }
 }

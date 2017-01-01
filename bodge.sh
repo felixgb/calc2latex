@@ -1,3 +1,3 @@
 cd $1
 pdflatex out.tex
-convert out.pdf out.png
+convert -density 300 out.pdf out.png

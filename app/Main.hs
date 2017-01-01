@@ -9,6 +9,7 @@ import Control.Monad.IO.Class
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.ByteString.Base64.URL as URL
+import qualified Data.ByteString.Base64.Lazy as L64
 
 import System.Process
 import System.IO.Temp
@@ -20,7 +21,9 @@ import Process
 sendImg :: String -> ActionM ()
 sendImg inp = do
     bs <- liftIO $ withTempDirectory "." "pics" (runLatex inp)
-    raw bs
+    setHeader "Access-Control-Allow-Origin" "*"
+    liftIO $ print (L64.encode bs)
+    raw $ L64.encode bs
 
 runLatex :: String -> FilePath -> IO BSL.ByteString
 runLatex inp s = do
