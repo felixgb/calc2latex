@@ -22,11 +22,10 @@ export default {
 }
 
 span, p {
-  font-family: Times, serif
+  font-family: Times, serif;
 }
 
 #all {
-  width: 1000px;
   display: flex;
   align-items: flex-start;
   flex-direction: column;
@@ -45,7 +44,6 @@ header > span {
 }
 
 header {
-  width: 1000px;
   border-bottom: 1px solid black;
 }
 
