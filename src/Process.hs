@@ -9,19 +9,21 @@ import Parser
 import Infer
 import Latexify
 
-go :: String -> IO ()
-go inp = do
-    let (ty, tex) = process inp
-    putStrLn $ docString tex
-
-calc2latex :: String -> String
-calc2latex inp = docString out
-    where out = snd $ process inp
-
-process :: String -> (Type, [Texlevel])
+process :: String -> String
 process inp = case runExcept (parseExpr inp >>= inferExpr) of
-    Left err -> error err
-    Right (ty, tex) -> (ty, tex)
+    Left err -> docErr err
+    Right (ty, tex) -> docString tex
+
+docErr :: LangErr -> String
+docErr err =
+    intercalate "\n" [ "\\documentclass["
+                     , "preview,"
+                     , "border={20px 20px 20px 20px}"
+                     , "]{standalone}"
+                     , "\\begin{document}"
+                     , latexify err
+                     , "\\end{document}"
+                     ]
 
 docString :: [Texlevel] -> String
 docString tex = 

@@ -54,7 +54,7 @@ instance Substitutable Texlevel where
 ctxLookup :: String -> Ctx -> Infer Type
 ctxLookup name ctx = case Map.lookup name ctx of
     (Just ty) -> return ty
-    Nothing -> throwError $ concat ["can't find var: ", name]
+    Nothing -> throwError $ ErrUnboundVar name
 
 recon :: Expr -> Ctx -> [Constraint] -> Infer (Type, [Constraint])
 recon expr ctx cs = case expr of
@@ -117,7 +117,7 @@ unifyMany (t1 : ts1) (t2 : ts2) = do
     su1 <- unifies t1 t2
     su2 <- unifyMany (apply su1 ts1) (apply su1 ts2)
     return (su2 `compose` su1)
-unifyMany t1 t2 = throwError $ concat ["unification err: ", show t1, ", ", show t2]
+unifyMany (t1 : _) (t2 : _) = throwError $ ErrUnify t1 t2
 
 unifies :: Type -> Type -> ThrowsErr Subst
 unifies t1 t2
@@ -125,12 +125,12 @@ unifies t1 t2
 unifies (TyVar x) t = x `bind` t
 unifies t (TyVar x) = x `bind` t
 unifies (TyArr t1 t2) (TyArr t3 t4) = unifyMany [t1, t2] [t3, t4]
-unifies t1 t2 = throwError (concat ["unification fail: ", show t1, ", ", show t2])
+unifies t1 t2 = throwError $ ErrUnify t1 t2
 
 bind :: String -> Type -> ThrowsErr Subst
 bind a t
     | t == TyVar a = return emptySubst
-    | occursCheck a t = throwError $ concat ["occursCheck: ", a, " occurs in: ", show t]
+    | occursCheck a t = throwError $ ErrOccursCheck a t
     | otherwise = return (Subst $ Map.singleton a t)
 
 freeTyVar :: Type -> Set.Set String

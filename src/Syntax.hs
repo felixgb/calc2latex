@@ -1,8 +1,16 @@
 module Syntax where
 
+import Text.Parsec.Error
+
 import Control.Monad.Except
 
-type ThrowsErr = Except String
+type ThrowsErr = Except LangErr
+
+data LangErr
+    = ErrParse ParseError
+    | ErrUnboundVar String
+    | ErrUnify Type Type
+    | ErrOccursCheck String Type
 
 type Var = String
 

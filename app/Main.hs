@@ -22,12 +22,11 @@ sendImg :: String -> ActionM ()
 sendImg inp = do
     bs <- liftIO $ withTempDirectory "." "pics" (runLatex inp)
     setHeader "Access-Control-Allow-Origin" "*"
-    liftIO $ print (L64.encode bs)
     raw $ L64.encode bs
 
 runLatex :: String -> FilePath -> IO BSL.ByteString
 runLatex inp s = do
-    liftIO $ writeFile (s ++ "/out.tex") (calc2latex inp)
+    liftIO $ writeFile (s ++ "/out.tex") (process inp)
     liftIO $ readProcess "./bodge.sh" [s] ""
     getPicture (s ++ "/out.png")
 
@@ -43,5 +42,4 @@ main = scotty 3000 $ do
     get "/:code" $ do
         code <- param "code"
         let inp = BS.unpack $ URL.decodeLenient code
-        -- let lol = "\\x . x"
         sendImg inp

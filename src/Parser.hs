@@ -48,4 +48,4 @@ expr = do
 parseExpr :: String -> ThrowsErr Expr
 parseExpr input = case parse (contents expr) "<stdin>" input of
     (Right ok) -> return ok
-    (Left err) -> throwError (show err)
+    (Left err) -> throwError (ErrParse err)

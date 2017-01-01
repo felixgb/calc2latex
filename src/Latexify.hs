@@ -1,11 +1,20 @@
 module Latexify where
 
+import Text.Parsec.Error
+
 import Data.List
 
 import Syntax
 
 class ToLatex a where
     latexify :: a -> String
+
+instance ToLatex LangErr where
+    latexify (ErrParse err) = "Parse error!"
+    latexify (ErrUnboundVar var) = "Unbound variable: " ++ var
+    latexify (ErrUnify t1 t2) = concat ["Can't unify: $", latexify t1, "$ and $", latexify t2, "$"]
+    latexify (ErrOccursCheck t1 t2) = 
+        concat ["Occurs check: var $", t1, "$ occurs in: $", latexify t2, "$"]
 
 instance ToLatex Expr where
     latexify (Var n) = n
