@@ -30,8 +30,7 @@ export default {
   },
   methods: {
     getImgData: function () {
-      // this.$http.get('http://52.210.168.197:3000/' + btoa(this.code)).then((response) => {
-      this.$http.get('http://localhost:3000/' + btoa(this.code)).then((response) => {
+      this.$http.get('http://52.210.168.197:3000/' + btoa(this.code)).then((response) => {
         this.dataUrl = 'data:image/png;base64,' + response.body
       }, (response) => {
         console.log(response)

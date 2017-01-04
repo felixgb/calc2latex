@@ -30,12 +30,12 @@ runLatex :: String -> FilePath -> IO BSL.ByteString
 runLatex inp s = do
     liftIO $ writeFile (s ++ "/out.tex") (process inp)
     liftIO $ readProcess "./bodge.sh" [s] ""
-    img <- readImage (s ++ "/out.png")
-    return $ getPicture img
+    getPicture (s ++ "/out.png")
 
-getPicture :: FilePath -> BSL.ByteString
-getPicture img = do
-    getBs img
+getPicture :: FilePath -> IO BSL.ByteString
+getPicture path = do
+    img <- readImage path
+    return $ getBs img
     where 
         getBs img = case (img >>= encodeDynamicPng) of
             Left err -> error err
