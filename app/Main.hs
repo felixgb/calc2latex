@@ -16,6 +16,8 @@ import System.IO.Temp
 import Web.Scotty
 import Codec.Picture
 
+import Network.Wai.Middleware.RequestLogger
+
 import Process
 
 sendImg :: String -> ActionM ()
@@ -28,17 +30,19 @@ runLatex :: String -> FilePath -> IO BSL.ByteString
 runLatex inp s = do
     liftIO $ writeFile (s ++ "/out.tex") (process inp)
     liftIO $ readProcess "./bodge.sh" [s] ""
-    getPicture (s ++ "/out.png")
+    img <- readImage (s ++ "/out.png")
+    return $ getPicture img
 
-getPicture path = do
-    img <- readImage path
-    case img of
-        Left err -> error err
-        Right im -> case encodeDynamicPng im of
+getPicture :: FilePath -> BSL.ByteString
+getPicture img = do
+    getBs img
+    where 
+        getBs img = case (img >>= encodeDynamicPng) of
             Left err -> error err
-            Right bs -> return bs
+            Right bs -> bs
 
 main = scotty 3000 $ do
+    middleware logStdout
     get "/:code" $ do
         code <- param "code"
         let inp = BS.unpack $ URL.decodeLenient code

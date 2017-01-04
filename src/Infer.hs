@@ -19,7 +19,8 @@ type Ctx = Map.Map String Type
 
 type Infer a = StateT [String] (WriterT [Texlevel] ThrowsErr) a
 
-vars = cycle $ map (:[]) ['A'..'Z']
+--vars = cycle $ map (:[]) ['A'..'Z']
+vars = concatMap (\n -> [c : show n | c <- ['A'..'Z']]) [1..]
 
 freshVar :: Infer Type
 freshVar = do
@@ -92,14 +93,14 @@ emptySubst :: Subst
 emptySubst = mempty
 
 compose :: Subst -> Subst -> Subst
+-- More efficent order of substitutions possible?
 compose (Subst s1) (Subst s2) = Subst $ Map.map (apply (Subst s1)) s2 `Map.union` s1
 
 inferExpr :: Expr -> ThrowsErr (Type, [Texlevel])
-inferExpr inp = case runExcept (runInfer inp) of
-    Left err -> throwError $ err
-    Right ((ty, cs), tex) -> case runExcept (runSolve cs) of
-        Left err -> throwError $ err
-        Right subst -> return $ (apply subst ty, apply subst tex)
+inferExpr inp = do
+    ((ty, cs), tex) <- runInfer inp
+    subst <- runSolve cs
+    return (apply subst ty, apply subst tex)
 
 runSolve :: [Constraint] -> ThrowsErr Subst
 runSolve cs = solver (emptySubst, cs)
@@ -117,7 +118,7 @@ unifyMany (t1 : ts1) (t2 : ts2) = do
     su1 <- unifies t1 t2
     su2 <- unifyMany (apply su1 ts1) (apply su1 ts2)
     return (su2 `compose` su1)
-unifyMany (t1 : _) (t2 : _) = throwError $ ErrUnify t1 t2
+unifyMany t1 t2 = throwError $ ErrUnify t1 t2
 
 unifies :: Type -> Type -> ThrowsErr Subst
 unifies t1 t2
@@ -125,7 +126,7 @@ unifies t1 t2
 unifies (TyVar x) t = x `bind` t
 unifies t (TyVar x) = x `bind` t
 unifies (TyArr t1 t2) (TyArr t3 t4) = unifyMany [t1, t2] [t3, t4]
-unifies t1 t2 = throwError $ ErrUnify t1 t2
+unifies t1 t2 = throwError $ ErrUnify [t1] [t2]
 
 bind :: String -> Type -> ThrowsErr Subst
 bind a t

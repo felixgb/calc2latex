@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Parser (
-  parseExpr
+    parseExpr
 ) where
 
 import Control.Monad.Except
@@ -17,33 +17,31 @@ import Syntax
 
 variable :: Parser Expr
 variable = do
-  x <- identifier
-  return (Var x)
+    x <- identifier
+    return (Var x)
 
 lambda :: Parser Expr
 lambda = do
-  reservedOp "\\"
-  args <- many identifier
-  reservedOp "."
-  body <- expr
-  return $ foldr Lam body args
+    reservedOp "\\"
+    args <- many identifier
+    reservedOp "."
+    body <- expr
+    return $ foldr Lam body args
 
 aexp :: Parser Expr
 aexp = parens expr
-  <|> lambda
-  <|> variable
+    <|> lambda
+    <|> variable
 
 term :: Parser Expr
 term = Ex.buildExpressionParser table aexp
 
---table :: Operators Expr
-table = [
-  ]
+table = []
 
 expr :: Parser Expr
 expr = do
-  es <- many1 term
-  return (foldl1 App es)
+    es <- many1 term
+    return (foldl1 App es)
 
 parseExpr :: String -> ThrowsErr Expr
 parseExpr input = case parse (contents expr) "<stdin>" input of

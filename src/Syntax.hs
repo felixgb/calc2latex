@@ -9,7 +9,7 @@ type ThrowsErr = Except LangErr
 data LangErr
     = ErrParse ParseError
     | ErrUnboundVar String
-    | ErrUnify Type Type
+    | ErrUnify [Type] [Type]
     | ErrOccursCheck String Type
 
 type Var = String
